@@ -68,3 +68,17 @@ test("catch-up notes are drafted once, and not after the cut-off", async () => {
   assert.equal((await runTick(BACKFILL_UNTIL, [{ ...two[0], pr: "backfill#99" }])).drafted, 0);
   assert.equal(new Set(BACKFILL.map((b) => b.pr)).size, BACKFILL.length);
 });
+
+test("a catch-up note already posted gets its picture in #whats-new", async () => {
+  const { runTick } = await import("./tick");
+  const { BACKFILL } = await import("./backfill");
+  const one = [{ ...BACKFILL[2], image: undefined }];
+  const T = NOW + 5 * 60 * 60_000;
+  await runTick(T, one, false);
+  assert.equal((await runTick(T + 61 * 60_000, one, false)).posted, 1);
+  const r = await runTick(T + 75 * 60_000, [{ ...one[0], image: "/whats-new/backfill/03.png" }], false);
+  assert.equal(r.failures, 0);
+  const post = msgs.filter((m) => m.channel === "CWN").at(-1)!;
+  assert.match(String(post.blocks), /whats-new\/backfill\/03\.png/);
+  assert.match(post.metadata!.event_payload.note, /03\.png/);
+});

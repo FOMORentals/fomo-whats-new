@@ -8,7 +8,7 @@
  */
 import { APPS } from "./apps";
 import { BACKFILL, BACKFILL_HOLD, BACKFILL_UNTIL } from "./backfill";
-import { dm, historyUrl, publishDraft, sendDraft, updateDraft, updateProposal } from "./actions";
+import { dm, editDraft, historyUrl, publishDraft, sendDraft, updateDraft, updateProposal } from "./actions";
 import { proposalSummary, weeklyBlocks } from "./blocks";
 import { mergedPrs } from "./github";
 import { parseTeamNote } from "./note";
@@ -79,13 +79,17 @@ export async function runTick(now = Date.now(), backfill = BACKFILL, hold = BACK
     }
   }
 
-  // 1c. Catch-up drafts already in the DM pick up their picture once it exists
+  // 1c. Catch-up notes pick up their picture: in the DM, and in #whats-new if already posted
   for (const x of drafts) {
     const want = backfill.find((b) => b.pr === x.d.key)?.image;
-    if (!want || x.d.note.image === want || x.d.status !== "waiting") continue;
+    if (!want || x.d.note.image === want || x.d.status === "skipped") continue;
     try {
-      x.d = { ...x.d, note: { ...x.d.note, image: want } };
-      await updateDraft(dmId, x.ts, x.d);
+      if (x.d.status === "posted") {
+        await editDraft(dmId, x.ts, { image: want }); // also updates the channel post
+      } else {
+        x.d = { ...x.d, note: { ...x.d.note, image: want } };
+        await updateDraft(dmId, x.ts, x.d);
+      }
     } catch (err) {
       fail(err, "tick.backfill_image", { key: x.d.key });
     }
