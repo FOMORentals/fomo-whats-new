@@ -11,6 +11,7 @@ export type Note = {
   todo: string; // "What you do"
   screenshot?: string; // path in the repo, under whats-new/
   tryIt?: string; // link
+  image?: string; // picture served by this app, e.g. "/whats-new/backfill/01.png" (catch-up notes only)
   pr: string; // "repo#123"
   prUrl: string;
   mergedAt: string; // ISO

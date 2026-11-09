@@ -7,8 +7,8 @@
  * One failure doesn't stop the rest; failures are counted and reported (rule 1).
  */
 import { APPS } from "./apps";
-import { BACKFILL, BACKFILL_UNTIL } from "./backfill";
-import { dm, historyUrl, publishDraft, sendDraft, updateProposal } from "./actions";
+import { BACKFILL, BACKFILL_HOLD, BACKFILL_UNTIL } from "./backfill";
+import { dm, historyUrl, publishDraft, sendDraft, updateDraft, updateProposal } from "./actions";
 import { proposalSummary, weeklyBlocks } from "./blocks";
 import { mergedPrs } from "./github";
 import { parseTeamNote } from "./note";
@@ -31,7 +31,7 @@ function startMs(): number {
 
 export type TickResult = { drafted: number; posted: number; closed: number; weekly: boolean; failures: number };
 
-export async function runTick(now = Date.now(), backfill = BACKFILL): Promise<TickResult> {
+export async function runTick(now = Date.now(), backfill = BACKFILL, hold = BACKFILL_HOLD): Promise<TickResult> {
   const r: TickResult = { drafted: 0, posted: 0, closed: 0, weekly: false, failures: 0 };
   const fail = (err: unknown, ctx: string, extra: Record<string, unknown> = {}) => {
     r.failures++;
@@ -79,9 +79,22 @@ export async function runTick(now = Date.now(), backfill = BACKFILL): Promise<Ti
     }
   }
 
+  // 1c. Catch-up drafts already in the DM pick up their picture once it exists
+  for (const x of drafts) {
+    const want = backfill.find((b) => b.pr === x.d.key)?.image;
+    if (!want || x.d.note.image === want || x.d.status !== "waiting") continue;
+    try {
+      x.d = { ...x.d, note: { ...x.d.note, image: want } };
+      await updateDraft(dmId, x.ts, x.d);
+    } catch (err) {
+      fail(err, "tick.backfill_image", { key: x.d.key });
+    }
+  }
+
   // 2. Drafts whose hold is over
   for (const { ts, d } of drafts) {
     if (d.status !== "waiting" || d.due > now) continue;
+    if (hold && d.key.startsWith("backfill#")) continue;
     try {
       if ((await publishDraft(dmId, ts)) === "posted") r.posted++;
     } catch (err) {

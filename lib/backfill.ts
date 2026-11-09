@@ -6,6 +6,9 @@
  */
 import type { Note } from "./note";
 
+/** While true, catch-up drafts wait in Jamie's DM instead of posting when their hour is up (pictures being added). */
+export const BACKFILL_HOLD = true;
+
 export const BACKFILL_UNTIL = Date.parse("2026-11-10T00:00:00Z");
 
 const gh = (repo: string, n?: number) => `https://github.com/FOMORentals/${repo}${n ? `/pull/${n}` : "/commits"}`;

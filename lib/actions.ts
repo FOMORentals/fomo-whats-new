@@ -16,6 +16,7 @@ export function historyUrl(appKey?: string): string {
 }
 
 export function imageUrl(note: Note, sha: string): string | undefined {
+  if (note.image) return `${appUrl()}${note.image}`;
   if (!note.screenshot) return undefined;
   const repo = appByKey(note.app)?.repo;
   if (!repo) return undefined;
@@ -40,7 +41,7 @@ export async function sendDraft(note: Note, sha: string, now = Date.now()): Prom
   });
 }
 
-async function updateDraft(dm: string, ts: string, d: Draft): Promise<void> {
+export async function updateDraft(dm: string, ts: string, d: Draft): Promise<void> {
   const postedLink = d.postedTs ? await messageLink(channel(), d.postedTs) : undefined;
   await slack("chat.update", {
     channel: dm,
