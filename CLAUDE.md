@@ -14,4 +14,4 @@ Before saying done: `npm test`, `npm run lint`, `npm run build`.
 
 ## Every FOMO repo
 Each app repo should have `.github/pull_request_template.md` from this repo, and its CLAUDE.md should say:
-"Every PR description has a `## Team note` section (see the PR template). It is what the team reads in #whats-new: a headline, what changed, what they do differently, a screenshot under `whats-new/` when the change is visible, and a link. Write `None` when the team won't notice the change."
+"Every PR description has a `## Team note` section (see the PR template). It is what the team reads in #whats-new: a headline, what changed, what they do differently, a picture under `whats-new/` wherever possible (a screenshot, or a mock-up or diagram/workflow when there is nothing to screenshot), and a link. Write `None` when the team won't notice the change."

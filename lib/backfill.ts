@@ -7,7 +7,7 @@
 import type { Note } from "./note";
 
 /** While true, catch-up drafts wait in Jamie's DM instead of posting when their hour is up (pictures being added). */
-export const BACKFILL_HOLD = true;
+export const BACKFILL_HOLD = false;
 
 export const BACKFILL_UNTIL = Date.parse("2026-11-10T00:00:00Z");
 
@@ -46,4 +46,5 @@ export const BACKFILL: Note[] = ITEMS.map(([app, repo, pr, mergedAt, headline, c
   pr: `backfill#${i + 1}`,
   prUrl: gh(repo, pr),
   mergedAt: `${mergedAt}T12:00:00Z`,
+  image: `/whats-new/backfill/${String(i + 1).padStart(2, "0")}.png`,
 }));
