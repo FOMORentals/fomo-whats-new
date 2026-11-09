@@ -1,0 +1,37 @@
+# Paste this at https://api.slack.com/apps → Create New App → From an app manifest.
+# Replace APP_URL with the Vercel address (e.g. https://fomo-whats-new.vercel.app) in the three places below.
+display_information:
+  name: FOMO What's new
+  description: Changes to the team's apps, and ideas for the team's input
+  background_color: "#111111"
+features:
+  app_home:
+    home_tab_enabled: false
+    messages_tab_enabled: true
+    messages_tab_read_only_enabled: true
+  bot_user:
+    display_name: What's new
+    always_online: true
+  slash_commands:
+    - command: /whatsnew
+      url: APP_URL/api/slack/commands
+      description: History by app, latest changes to one app, or share an idea
+      usage_hint: "[overtime | portal | website | … | idea]"
+      should_escape: false
+oauth_config:
+  scopes:
+    bot:
+      - chat:write
+      - commands
+      - users:read
+      - users:read.email
+      - im:write
+      - im:history
+      - channels:history
+settings:
+  interactivity:
+    is_enabled: true
+    request_url: APP_URL/api/slack/interactions
+  org_deploy_enabled: false
+  socket_mode_enabled: false
+  token_rotation_enabled: false
