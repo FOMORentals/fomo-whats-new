@@ -61,7 +61,9 @@ export function parseTeamNote(body: string | null | undefined): NoteText | null 
 
 /** Screenshots must live under whats-new/ in the repo (that is all the image route will serve). */
 export function cleanScreenshotPath(p: string): string | undefined {
-  const s = p.replace(/^`|`$/g, "").replace(/^\.?\//, "").trim();
+  // Accept a bare path, `path`, <path>, or a Markdown image/link: ![alt](path) / [text](path).
+  const md = p.trim().match(/^!?\[[^\]]*\]\(\s*<?([^)\s>]+)>?(?:\s+"[^"]*")?\s*\)$/);
+  const s = (md ? md[1] : p).trim().replace(/^[`<]|[`>]$/g, "").replace(/^\.?\//, "").trim();
   if (!/^whats-new\/[\w./-]+\.(png|jpe?g|gif|webp)$/i.test(s) || s.includes("..")) return undefined;
   return s;
 }

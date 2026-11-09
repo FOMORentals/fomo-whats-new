@@ -52,7 +52,23 @@ export async function runTick(now = Date.now(), backfill = BACKFILL, hold = BACK
     try {
       for (const pr of await mergedPrs(app.repo, since)) {
         const key = `${app.repo}#${pr.number}`;
-        if (seen.has(key)) continue;
+        if (seen.has(key)) {
+          // A draft made before its picture could be read (e.g. written as a Markdown image) picks it up later.
+          const x = drafts.find((y) => y.d.key === key);
+          const shot = x && x.d.status !== "skipped" && !x.d.note.screenshot && !x.d.note.image ? parseTeamNote(pr.body)?.screenshot : undefined;
+          if (x && shot) {
+            try {
+              if (x.d.status === "posted") await editDraft(dmId, x.ts, { screenshot: shot });
+              else {
+                x.d = { ...x.d, note: { ...x.d.note, screenshot: shot } };
+                await updateDraft(dmId, x.ts, x.d);
+              }
+            } catch (err) {
+              fail(err, "tick.late_screenshot", { key });
+            }
+          }
+          continue;
+        }
         const text = parseTeamNote(pr.body);
         if (!text) continue; // behind-the-scenes change; nothing to tell the team
         await sendDraft({ ...text, app: app.key, pr: key, prUrl: pr.html_url, mergedAt: pr.merged_at }, pr.merge_commit_sha, now);

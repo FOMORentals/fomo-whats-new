@@ -78,7 +78,7 @@ export async function skipDraft(dm: string, ts: string): Promise<void> {
 }
 
 /** Jamie edited the words. Updates the draft and, if it is already out, the channel post too. */
-export async function editDraft(dm: string, ts: string, text: Partial<Pick<Note, "headline" | "changed" | "todo" | "tryIt" | "image">>): Promise<void> {
+export async function editDraft(dm: string, ts: string, text: Partial<Pick<Note, "headline" | "changed" | "todo" | "tryIt" | "image" | "screenshot">>): Promise<void> {
   const d = readDraft((await getMessage(dm, ts))?.metadata);
   if (!d) throw new Error(`Draft ${dm}/${ts} not found`);
   const note = { ...d.note, ...text, tryIt: "tryIt" in text ? text.tryIt || undefined : d.note.tryIt };

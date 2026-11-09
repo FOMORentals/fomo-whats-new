@@ -45,6 +45,9 @@ test("screenshots outside whats-new/ are dropped", () => {
   const n = parseTeamNote("## Team note\nHeadline: X\nScreenshot: ../secrets.png");
   assert.equal(n?.screenshot, undefined);
   assert.equal(parseTeamNote("## Team note\nHeadline: X\nScreenshot: `./whats-new/a.png`")?.screenshot, "whats-new/a.png");
+  assert.equal(parseTeamNote("## Team note\nHeadline: X\n**Screenshot:** ![Assign to a freelancer](whats-new/freelancer-invites.png)")?.screenshot, "whats-new/freelancer-invites.png");
+  assert.equal(parseTeamNote("## Team note\nHeadline: X\nScreenshot: [pic](./whats-new/b.png)")?.screenshot, "whats-new/b.png");
+  assert.equal(parseTeamNote("## Team note\nHeadline: X\nScreenshot: ![x](https://evil.example/a.png)")?.screenshot, undefined);
 });
 
 test("note at the very end of the description", () => {
