@@ -43,17 +43,28 @@ globalThis.fetch = (async (url: string, init?: { body?: URLSearchParams }) => {
 
 test("merged PR → draft to Jamie → posts after the hour, once", async () => {
   const { runTick } = await import("./tick");
-  let r = await runTick(NOW);
+  let r = await runTick(NOW, []);
   assert.equal(r.drafted, 1); assert.equal(r.failures, 0);
   assert.equal(msgs.filter((m) => m.channel === "DJ").length, 1);
-  r = await runTick(NOW + 30 * 60_000);
+  r = await runTick(NOW + 30 * 60_000, []);
   assert.equal(r.drafted, 0); assert.equal(r.posted, 0);
-  r = await runTick(NOW + 61 * 60_000);
+  r = await runTick(NOW + 61 * 60_000, []);
   assert.equal(r.posted, 1);
   const posted = msgs.filter((m) => m.channel === "CWN");
   assert.equal(posted.length, 1);
   assert.equal(posted[0].metadata?.event_type, "wn_note");
   assert.equal(msgs.find((m) => m.channel === "DJ")!.metadata!.event_payload.status, "posted");
-  r = await runTick(NOW + 80 * 60_000);
+  r = await runTick(NOW + 80 * 60_000, []);
   assert.equal(r.posted + r.drafted, 0);
+});
+
+test("catch-up notes are drafted once, and not after the cut-off", async () => {
+  const { runTick } = await import("./tick");
+  const { BACKFILL, BACKFILL_UNTIL } = await import("./backfill");
+  const two = BACKFILL.slice(0, 2);
+  const T = NOW + 2 * 60 * 60_000;
+  assert.equal((await runTick(T, two)).drafted, 2);
+  assert.equal((await runTick(T + 15 * 60_000, two)).drafted, 0);
+  assert.equal((await runTick(BACKFILL_UNTIL, [{ ...two[0], pr: "backfill#99" }])).drafted, 0);
+  assert.equal(new Set(BACKFILL.map((b) => b.pr)).size, BACKFILL.length);
 });

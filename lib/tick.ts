@@ -7,6 +7,7 @@
  * One failure doesn't stop the rest; failures are counted and reported (rule 1).
  */
 import { APPS } from "./apps";
+import { BACKFILL, BACKFILL_UNTIL } from "./backfill";
 import { dm, historyUrl, publishDraft, sendDraft, updateProposal } from "./actions";
 import { proposalSummary, weeklyBlocks } from "./blocks";
 import { mergedPrs } from "./github";
@@ -30,7 +31,7 @@ function startMs(): number {
 
 export type TickResult = { drafted: number; posted: number; closed: number; weekly: boolean; failures: number };
 
-export async function runTick(now = Date.now()): Promise<TickResult> {
+export async function runTick(now = Date.now(), backfill = BACKFILL): Promise<TickResult> {
   const r: TickResult = { drafted: 0, posted: 0, closed: 0, weekly: false, failures: 0 };
   const fail = (err: unknown, ctx: string, extra: Record<string, unknown> = {}) => {
     r.failures++;
@@ -60,6 +61,21 @@ export async function runTick(now = Date.now()): Promise<TickResult> {
       }
     } catch (err) {
       fail(err, "tick.github", { repo: app.repo });
+    }
+  }
+
+  // 1b. One-off catch-up notes (lib/backfill.ts)
+  if (now < BACKFILL_UNTIL) {
+    for (const note of backfill) {
+      if (seen.has(note.pr)) continue;
+      try {
+        await sendDraft(note, "", now);
+        seen.add(note.pr);
+        r.drafted++;
+      } catch (err) {
+        fail(err, "tick.backfill", { key: note.pr });
+        break;
+      }
     }
   }
 

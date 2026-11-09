@@ -20,3 +20,6 @@ Jamie changes the team's apps (bookings board, portal, inventory/status dashboar
 ## Known limits
 - Two votes on the same idea in the same second can lose one (read-then-write on the message). Fine for a team of six.
 - If Jamie taps Post now at the exact moment the hold runs out, the note could post twice. Delete one.
+
+## Catch-up (9 Nov 2026)
+Jamie asked for the changes from 30 Oct to 9 Nov to be announced too. 17 notes, in `lib/backfill.ts`, go to his DM as ordinary drafts on the first cron run (overtime held back until the tracker is live). Sending stops at midnight on 10 Nov so the 7-day lookback cannot repeat them. Delete the file once they are out.
