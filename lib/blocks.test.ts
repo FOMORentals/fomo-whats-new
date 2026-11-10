@@ -88,3 +88,8 @@ test("Try it: None is left off; a draft with no picture says so", () => {
   assert.match(JSON.stringify(draftBlocks(note, "waiting", 0, noPic)), /No picture/);
   assert.doesNotMatch(JSON.stringify(draftBlocks(note, "waiting", 0, links)), /No picture/);
 });
+
+test("Try it link with words after it links only the address", () => {
+  const json = JSON.stringify(noteBlocks({ ...note, tryIt: "https://www.fomorentals.co.uk/rate-card (Download PDF), once published" }, links));
+  assert.match(json, /<https:\/\/www\.fomorentals\.co\.uk\/rate-card\|Try it> \(Download PDF\), once published/);
+});

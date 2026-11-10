@@ -23,7 +23,9 @@ function appLabel(key: string): string {
 /** A "Try it" value becomes a link when it is one; slash commands and words stay as text. */
 function tryItText(v: string | undefined): string | null {
   if (!v || NONE.test(v.trim())) return null;
-  return /^https:\/\//.test(v) ? `<${v}|Try it>` : `Try it: \`${esc(v)}\``;
+  const m = v.trim().match(/^(https:\/\/[^\s<>|]+)\s*(.*)$/);
+  if (m) return `<${m[1]}|Try it>${m[2] ? ` ${esc(m[2])}` : ""}`;
+  return `Try it: \`${esc(v)}\``;
 }
 
 /** The post in #whats-new. */
