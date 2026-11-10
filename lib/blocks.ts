@@ -3,7 +3,7 @@
  * Keep the words few: headline, what changed, what you do, a picture, a link.
  */
 import { appByKey, APPS } from "./apps";
-import type { Note } from "./note";
+import { NONE, type Note } from "./note";
 import { clock, dayLabel } from "./time";
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -22,7 +22,7 @@ function appLabel(key: string): string {
 
 /** A "Try it" value becomes a link when it is one; slash commands and words stay as text. */
 function tryItText(v: string | undefined): string | null {
-  if (!v) return null;
+  if (!v || NONE.test(v.trim())) return null;
   return /^https:\/\//.test(v) ? `<${v}|Try it>` : `Try it: \`${esc(v)}\``;
 }
 
@@ -57,6 +57,7 @@ export function draftBlocks(note: Note, status: DraftStatus, dueMs: number, link
       : status === "posted"
         ? `✅ Posted to #whats-new${postedLink ? ` · <${postedLink}|see it>` : ""}. You can still edit it.`
         : `⏭️ Skipped. The team won't see this one.`;
+  const warn = status === "waiting" && !links.image ? "\n⚠️ No picture with this one: the pull request didn't include one." : "";
   const buttons: Block[] =
     status === "waiting"
       ? [
@@ -68,7 +69,7 @@ export function draftBlocks(note: Note, status: DraftStatus, dueMs: number, link
         ? [{ type: "button", action_id: "draft_edit", text: { type: "plain_text", text: "Edit" }, value: "edit" }]
         : [{ type: "button", action_id: "draft_post", text: { type: "plain_text", text: "Post anyway" }, value: "post" }];
   return [
-    { type: "section", text: { type: "mrkdwn", text: head } },
+    { type: "section", text: { type: "mrkdwn", text: head + warn } },
     ...noteBlocks(note, links),
     { type: "actions", elements: buttons },
   ];

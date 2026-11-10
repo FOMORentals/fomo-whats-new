@@ -81,3 +81,10 @@ test("London times: weekly slot and proposal closing", () => {
   assert.equal(proposalClosed("2026-11-13", Date.parse("2026-11-13T17:00:00Z")), true);
   assert.equal(proposalClosed("2026-11-13", Date.parse("2026-11-14T08:00:00Z")), true);
 });
+
+test("Try it: None is left off; a draft with no picture says so", () => {
+  assert.doesNotMatch(JSON.stringify(noteBlocks({ ...note, tryIt: "None" }, links)), /Try it/);
+  const noPic = { history: links.history };
+  assert.match(JSON.stringify(draftBlocks(note, "waiting", 0, noPic)), /No picture/);
+  assert.doesNotMatch(JSON.stringify(draftBlocks(note, "waiting", 0, links)), /No picture/);
+});

@@ -53,3 +53,11 @@ test("screenshots outside whats-new/ are dropped", () => {
 test("note at the very end of the description", () => {
   assert.equal(parseTeamNote("## Team note\nHeadline: Last one")?.headline, "Last one");
 });
+
+test("picture path with words after it, and None in optional fields (bookings #80, 10 Nov)", () => {
+  const n = parseTeamNote(
+    "## Team note\n**Headline:** Verified freelancers\n**What changed:** x\n**What you do:** Nothing.\n**Screenshot:** whats-new/2026-11-10-verified-freelancer-account-pill.png (mock-up)\n**Try it:** None\n",
+  )!;
+  assert.equal(n.screenshot, "whats-new/2026-11-10-verified-freelancer-account-pill.png");
+  assert.equal(n.tryIt, undefined);
+});

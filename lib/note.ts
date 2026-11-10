@@ -28,7 +28,7 @@ const FIELDS: Record<string, keyof NoteText> = {
 };
 
 /** Words that mean "the team won't notice this, don't announce it". */
-const NONE = /^(none|n\/a|no|-|nothing|behind the scenes)\.?$/i;
+export const NONE = /^(none|n\/a|no|-|nothing|behind the scenes)\.?$/i;
 
 /**
  * Pull the team note out of a PR description. Returns null when there is no note,
@@ -52,7 +52,7 @@ export function parseTeamNote(body: string | null | undefined): NoteText | null 
     const key = FIELDS[f[1].toLowerCase()];
     if (!key) continue;
     const value = f[2].replace(/^\*+|\*+$/g, "").trim();
-    if (value && !/^\(.*\)$/.test(value)) out[key] = value;
+    if (value && !/^\(.*\)$/.test(value) && !(key !== "headline" && NONE.test(value))) out[key] = value;
   }
   if (!out.headline || NONE.test(out.headline)) return null;
   if (out.screenshot) out.screenshot = cleanScreenshotPath(out.screenshot);
@@ -64,6 +64,11 @@ export function cleanScreenshotPath(p: string): string | undefined {
   // Accept a bare path, `path`, <path>, or a Markdown image/link: ![alt](path) / [text](path).
   const md = p.trim().match(/^!?\[[^\]]*\]\(\s*<?([^)\s>]+)>?(?:\s+"[^"]*")?\s*\)$/);
   const s = (md ? md[1] : p).trim().replace(/^[`<]|[`>]$/g, "").replace(/^\.?\//, "").trim();
+  // …or a path with words around it, e.g. "whats-new/x.png (mock-up)".
+  if (!/^whats-new\/[\w./-]+\.(png|jpe?g|gif|webp)$/i.test(s)) {
+    const found = p.match(/(?:^|[\s(`<\[])\.?\/?(whats-new\/[\w./-]+\.(?:png|jpe?g|gif|webp))(?=$|[\s)`>\],])/i);
+    if (found && !found[1].includes("..")) return found[1];
+  }
   if (!/^whats-new\/[\w./-]+\.(png|jpe?g|gif|webp)$/i.test(s) || s.includes("..")) return undefined;
   return s;
 }
