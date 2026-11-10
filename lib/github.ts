@@ -34,3 +34,11 @@ export async function fileAt(repo: string, ref: string, path: string): Promise<{
   const res = await gh(`/repos/${OWNER}/${repo}/contents/${path.split("/").map(encodeURIComponent).join("/")}?ref=${encodeURIComponent(ref)}`, "application/vnd.github.raw");
   return { body: await res.arrayBuffer(), type: res.headers.get("content-type") ?? "application/octet-stream" };
 }
+
+/** Pictures the pull request added or changed under whats-new/ (how a note gets its picture whatever the note says). */
+export async function prPictures(repo: string, number: number): Promise<string[]> {
+  const files = (await (await gh(`/repos/${OWNER}/${repo}/pulls/${number}/files?per_page=100`)).json()) as { filename: string; status: string }[];
+  return files
+    .filter((f) => f.status !== "removed" && /^whats-new\/[\w./-]+\.(png|jpe?g|gif|webp)$/i.test(f.filename) && !f.filename.includes(".."))
+    .map((f) => f.filename);
+}

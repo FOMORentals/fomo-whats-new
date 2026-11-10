@@ -10,7 +10,7 @@ import { APPS } from "./apps";
 import { BACKFILL, BACKFILL_HOLD, BACKFILL_UNTIL } from "./backfill";
 import { dm, editDraft, historyUrl, publishDraft, sendDraft, updateDraft, updateProposal } from "./actions";
 import { proposalSummary, weeklyBlocks } from "./blocks";
-import { mergedPrs } from "./github";
+import { mergedPrs, prPictures } from "./github";
 import { parseTeamNote } from "./note";
 import { readDraft, readNote, readProposal, WEEKLY } from "./records";
 import { report } from "./report";
@@ -55,7 +55,10 @@ export async function runTick(now = Date.now(), backfill = BACKFILL, hold = BACK
         if (seen.has(key)) {
           // A draft made before its picture could be read (e.g. written as a Markdown image) picks it up later.
           const x = drafts.find((y) => y.d.key === key);
-          const shot = x && x.d.status !== "skipped" && !x.d.note.screenshot && !x.d.note.image ? parseTeamNote(pr.body)?.screenshot : undefined;
+          const shot =
+            x && x.d.status !== "skipped" && !x.d.note.screenshot && !x.d.note.image
+              ? (parseTeamNote(pr.body)?.screenshot ?? (await prPictures(app.repo, pr.number))[0])
+              : undefined;
           if (x && shot) {
             try {
               if (x.d.status === "posted") await editDraft(dmId, x.ts, { screenshot: shot });
@@ -71,6 +74,8 @@ export async function runTick(now = Date.now(), backfill = BACKFILL, hold = BACK
         }
         const text = parseTeamNote(pr.body);
         if (!text) continue; // behind-the-scenes change; nothing to tell the team
+        // The picture is the one the note names, else any picture the change added under whats-new/.
+        text.screenshot ??= (await prPictures(app.repo, pr.number))[0];
         await sendDraft({ ...text, app: app.key, pr: key, prUrl: pr.html_url, mergedAt: pr.merged_at }, pr.merge_commit_sha, now);
         seen.add(key);
         r.drafted++;
@@ -114,6 +119,7 @@ export async function runTick(now = Date.now(), backfill = BACKFILL, hold = BACK
   // 2. Drafts whose hold is over
   for (const { ts, d } of drafts) {
     if (d.status !== "waiting" || d.due > now) continue;
+    if (!d.note.screenshot && !d.note.image) continue; // no picture: waits for Jamie's Post now (Jamie, 10 Nov)
     if (hold && d.key.startsWith("backfill#")) continue;
     try {
       if ((await publishDraft(dmId, ts)) === "posted") r.posted++;

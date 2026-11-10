@@ -23,3 +23,6 @@ Jamie changes the team's apps (bookings board, portal, inventory/status dashboar
 
 ## Catch-up (9 Nov 2026)
 Jamie asked for the changes from 30 Oct to 9 Nov to be announced too. 17 notes, in `lib/backfill.ts`, go to his DM as ordinary drafts on the first cron run (overtime held back until the tracker is live). Sending stops at midnight on 10 Nov so the 7-day lookback cannot repeat them. Delete the file once they are out. Each catch-up note has a mock-up (`public/whats-new/backfill/`, made from HTML with Playwright), served by this app.
+
+## Pictures are found from the files (Jamie, 10 Nov 2026)
+Twice a note lost its picture because of how the Screenshot line was written (a Markdown image on 9 Nov, "(mock-up)" after the path on 10 Nov). Now a note uses the picture it names, else any picture the pull request added under `whats-new/` (one GitHub read per merged change). A draft with no picture never posts on its own: it says so and waits for Jamie's Post now or Skip. "None" in Try it is left off.

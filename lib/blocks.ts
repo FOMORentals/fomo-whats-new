@@ -52,12 +52,15 @@ export type DraftStatus = "waiting" | "posted" | "skipped";
 /** Jamie's DM: the note as the team will see it, and what will happen to it. */
 export function draftBlocks(note: Note, status: DraftStatus, dueMs: number, links: Links, postedLink?: string): Block[] {
   const head =
-    status === "waiting"
+    status === "waiting" && !links.image
+      ? `📝 Ready for #whats-new. <${note.prUrl}|Change on GitHub>`
+      : status === "waiting"
       ? `📝 This goes to #whats-new at *${clock(dueMs)}* unless you skip it. <${note.prUrl}|Change on GitHub>`
       : status === "posted"
         ? `✅ Posted to #whats-new${postedLink ? ` · <${postedLink}|see it>` : ""}. You can still edit it.`
         : `⏭️ Skipped. The team won't see this one.`;
-  const warn = status === "waiting" && !links.image ? "\n⚠️ No picture with this one: the pull request didn't include one." : "";
+  const warn =
+    status === "waiting" && !links.image ? "\n⚠️ *No picture*, so this one waits for you: it won't post on its own. Press Post now, or Skip." : "";
   const buttons: Block[] =
     status === "waiting"
       ? [

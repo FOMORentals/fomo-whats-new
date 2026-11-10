@@ -15,6 +15,8 @@ globalThis.fetch = (async (url: string, init?: { body?: URLSearchParams }) => {
   const ok = (o: unknown) => new Response(JSON.stringify({ ok: true, ...(o as object) }), { status: 200 });
   if (u.startsWith("https://api.github.com")) {
     if (u.endsWith("/repos/FOMORentals/fomo-overtime")) return new Response(JSON.stringify({ default_branch: "main" }));
+    if (u.includes("/pulls/12/files")) return new Response(JSON.stringify([{ filename: "src/x.ts", status: "modified" }, { filename: "whats-new/give-away.png", status: "added" }]));
+    if (u.includes("/files")) return new Response("[]");
     if (u.includes("/repos/FOMORentals/fomo-overtime/pulls"))
       return new Response(JSON.stringify([
         { number: 12, title: "x", body: "## Team note\nHeadline: Give away button\nWhat changed: hand a slot over", html_url: "h", merged_at: "2026-11-09T09:00:00Z", merge_commit_sha: "abc1234" },
@@ -54,6 +56,7 @@ test("merged PR → draft to Jamie → posts after the hour, once", async () => 
   assert.equal(posted.length, 1);
   assert.equal(posted[0].metadata?.event_type, "wn_note");
   assert.equal(msgs.find((m) => m.channel === "DJ")!.metadata!.event_payload.status, "posted");
+  assert.match(posted[0].metadata!.event_payload.note, /whats-new\/give-away\.png/); // picture found from the files, not the note
   r = await runTick(NOW + 80 * 60_000, []);
   assert.equal(r.posted + r.drafted, 0);
 });
@@ -72,7 +75,7 @@ test("catch-up notes are drafted once, and not after the cut-off", async () => {
 test("a catch-up note already posted gets its picture in #whats-new", async () => {
   const { runTick } = await import("./tick");
   const { BACKFILL } = await import("./backfill");
-  const one = [{ ...BACKFILL[2], image: undefined }];
+  const one = [{ ...BACKFILL[2], image: "/whats-new/backfill/old.png" }];
   const T = NOW + 5 * 60 * 60_000;
   await runTick(T, one, false);
   assert.equal((await runTick(T + 61 * 60_000, one, false)).posted, 1);
@@ -81,4 +84,13 @@ test("a catch-up note already posted gets its picture in #whats-new", async () =
   const post = msgs.filter((m) => m.channel === "CWN").at(-1)!;
   assert.match(String(post.blocks), /whats-new\/backfill\/03\.png/);
   assert.match(post.metadata!.event_payload.note, /03\.png/);
+});
+
+test("a draft with no picture never posts on its own", async () => {
+  const { runTick } = await import("./tick");
+  const { BACKFILL } = await import("./backfill");
+  const bare = [{ ...BACKFILL[4], pr: "backfill#98", image: undefined }];
+  const T = NOW + 9 * 60 * 60_000;
+  assert.equal((await runTick(T, bare, false)).drafted, 1);
+  assert.equal((await runTick(T + 3 * 60 * 60_000, bare, false)).posted, 0);
 });
