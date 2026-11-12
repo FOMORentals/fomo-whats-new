@@ -11,6 +11,7 @@ import { BACKFILL, BACKFILL_HOLD, BACKFILL_UNTIL } from "./backfill";
 import { dm, editDraft, historyUrl, publishDraft, sendDraft, updateDraft, updateProposal } from "./actions";
 import { proposalSummary, weeklyBlocks } from "./blocks";
 import { mergedPrs, prPictures } from "./github";
+import { PICTURES } from "./pictures";
 import { parseTeamNote } from "./note";
 import { readDraft, readNote, readProposal, WEEKLY } from "./records";
 import { report } from "./report";
@@ -31,7 +32,7 @@ function startMs(): number {
 
 export type TickResult = { drafted: number; posted: number; closed: number; weekly: boolean; failures: number };
 
-export async function runTick(now = Date.now(), backfill = BACKFILL, hold = BACKFILL_HOLD): Promise<TickResult> {
+export async function runTick(now = Date.now(), backfill = BACKFILL, hold = BACKFILL_HOLD, pictures = PICTURES): Promise<TickResult> {
   const r: TickResult = { drafted: 0, posted: 0, closed: 0, weekly: false, failures: 0 };
   const fail = (err: unknown, ctx: string, extra: Record<string, unknown> = {}) => {
     r.failures++;
@@ -100,9 +101,9 @@ export async function runTick(now = Date.now(), backfill = BACKFILL, hold = BACK
     }
   }
 
-  // 1c. Catch-up notes pick up their picture: in the DM, and in #whats-new if already posted
+  // 1c. Pictures made later (lib/pictures.ts, catch-up notes) are attached: in the DM, and in #whats-new if already posted
   for (const x of drafts) {
-    const want = backfill.find((b) => b.pr === x.d.key)?.image;
+    const want = pictures[x.d.key] ?? backfill.find((b) => b.pr === x.d.key)?.image;
     if (!want || x.d.note.image === want || x.d.status === "skipped") continue;
     try {
       if (x.d.status === "posted") {
@@ -112,7 +113,7 @@ export async function runTick(now = Date.now(), backfill = BACKFILL, hold = BACK
         await updateDraft(dmId, x.ts, x.d);
       }
     } catch (err) {
-      fail(err, "tick.backfill_image", { key: x.d.key });
+      fail(err, "tick.late_image", { key: x.d.key });
     }
   }
 
