@@ -125,7 +125,6 @@ export async function runTick(now = Date.now(), backfill = BACKFILL, hold = BACK
   // 2. Drafts whose hold is over
   for (const { ts, d } of drafts) {
     if (d.status !== "waiting" || d.due > now) continue;
-    if (!d.note.screenshot && !d.note.image) continue; // no picture: waits for Jamie's Post now (Jamie, 10 Nov)
     if (hold && d.key.startsWith("backfill#")) continue;
     try {
       if ((await publishDraft(dmId, ts)) === "posted") r.posted++;

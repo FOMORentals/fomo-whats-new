@@ -15,9 +15,22 @@ export function historyUrl(appKey?: string): string {
   return `${appUrl()}/?${q}`;
 }
 
+/** Cut to whole words, so a summary card fits its picture. */
+function clip(s: string, max: number): string {
+  const t = s.replace(/\*\*/g, "").replace(/\s+/g, " ").trim();
+  return t.length <= max ? t : t.slice(0, t.lastIndexOf(" ", max - 1)).replace(/[,;:.]$/, "") + "…";
+}
+
+/** The note drawn as a picture (app/api/card), for a change that came with none. */
+export function cardUrl(note: Note): string {
+  const app = note.app, h = clip(note.headline, 90), c = clip(note.changed, 260), t = clip(note.todo, 160);
+  const q = new URLSearchParams({ app, h, c, t, sig: sign(`card:${app}:${h}:${c}:${t}`) });
+  return `${appUrl()}/api/card?${q}`;
+}
+
 export function imageUrl(note: Note, sha: string): string | undefined {
   if (note.image) return `${appUrl()}${note.image}`;
-  if (!note.screenshot) return undefined;
+  if (!note.screenshot) return cardUrl(note);
   const repo = appByKey(note.app)?.repo;
   if (!repo) return undefined;
   const q = new URLSearchParams({ repo, ref: sha, path: note.screenshot, sig: sign(`${repo}:${sha}:${note.screenshot}`) });
@@ -25,7 +38,7 @@ export function imageUrl(note: Note, sha: string): string | undefined {
 }
 
 export function linksFor(note: Note, sha: string): Links {
-  return { history: historyUrl, image: imageUrl(note, sha) };
+  return { history: historyUrl, image: imageUrl(note, sha), card: !note.image && !note.screenshot };
 }
 
 /** New change → DM Jamie the draft. It posts itself when the hold runs out. */

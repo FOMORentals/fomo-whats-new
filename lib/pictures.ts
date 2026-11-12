@@ -8,6 +8,7 @@ export type LaterFix = { image?: string; changed?: string; todo?: string };
 export const PICTURES: Record<string, LaterFix> = {
   "fomo-bookings-board-v2#91": { image: "/whats-new/notes/bookings-91-kit-status.png" },
   "fomo-bookings-board-v2#92": { image: "/whats-new/notes/bookings-92-company-column.png" },
+  "fomo-bookings-board-v2#99": { image: "/whats-new/notes/bookings-99-overdue-chase.png" },
   // #94 and #96 (same morning) replaced the long red lines with a small red ⚡ time chip before the status.
   "fomo-bookings-board-v2#93": {
     image: "/whats-new/notes/bookings-93-quick-turnarounds.png",

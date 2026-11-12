@@ -86,23 +86,23 @@ test("a catch-up note already posted gets its picture in #whats-new", async () =
   assert.match(post.metadata!.event_payload.note, /03\.png/);
 });
 
-test("a draft with no picture never posts on its own", async () => {
+test("a draft with no picture gets a summary card and posts on its own", async () => {
   const { runTick } = await import("./tick");
   const { BACKFILL } = await import("./backfill");
   const bare = [{ ...BACKFILL[4], pr: "backfill#98", image: undefined }];
   const T = NOW + 9 * 60 * 60_000;
   assert.equal((await runTick(T, bare, false)).drafted, 1);
-  assert.equal((await runTick(T + 3 * 60 * 60_000, bare, false)).posted, 0);
+  assert.equal((await runTick(T + 3 * 60 * 60_000, bare, false)).posted, 1);
+  assert.match(String(msgs.filter((m) => m.channel === "CWN").at(-1)!.blocks), /\/api\/card\?app=/);
 });
 
-test("a picture made later (lib/pictures.ts) is attached, and the waiting draft can then post", async () => {
+test("a picture made later (lib/pictures.ts) is attached before the draft posts", async () => {
   const { runTick } = await import("./tick");
   const { BACKFILL } = await import("./backfill");
   const bare = [{ ...BACKFILL[5], pr: "backfill#97", image: undefined }];
   const T = NOW + 11 * 60 * 60_000; // before the catch-up cut-off
   assert.equal((await runTick(T, bare, false, {})).drafted, 1);
-  assert.equal((await runTick(T + 61 * 60_000, bare, false, {})).posted, 0);
-  const r = await runTick(T + 75 * 60_000, bare, false, { "backfill#97": { image: "/whats-new/notes/x.png", changed: "New words" } });
+  const r = await runTick(T + 61 * 60_000, bare, false, { "backfill#97": { image: "/whats-new/notes/x.png", changed: "New words" } });
   assert.equal(r.failures, 0);
   assert.equal(r.posted, 1);
   assert.match(msgs.filter((m) => m.channel === "CWN").at(-1)!.metadata!.event_payload.note, /notes\/x\.png/);

@@ -87,6 +87,7 @@ test("Try it: None is left off; a draft with no picture says so", () => {
   const noPic = { history: links.history };
   assert.match(JSON.stringify(draftBlocks(note, "waiting", 0, noPic)), /No picture/);
   assert.doesNotMatch(JSON.stringify(draftBlocks(note, "waiting", 0, links)), /No picture/);
+  assert.match(JSON.stringify(draftBlocks(note, "waiting", 0, { ...links, card: true })), /summary card/);
 });
 
 test("Try it link with words after it links only the address", () => {

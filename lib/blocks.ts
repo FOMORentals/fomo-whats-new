@@ -9,7 +9,7 @@ import { clock, dayLabel } from "./time";
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export type Block = Record<string, any>;
 
-export type Links = { image?: string; history: (appKey?: string) => string; tryIt?: string };
+export type Links = { image?: string; history: (appKey?: string) => string; tryIt?: string; card?: boolean };
 
 function esc(s: string): string {
   return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -62,7 +62,11 @@ export function draftBlocks(note: Note, status: DraftStatus, dueMs: number, link
         ? `✅ Posted to #whats-new${postedLink ? ` · <${postedLink}|see it>` : ""}. You can still edit it.`
         : `⏭️ Skipped. The team won't see this one.`;
   const warn =
-    status === "waiting" && !links.image ? "\n⚠️ *No picture*, so this one waits for you: it won't post on its own. Press Post now, or Skip." : "";
+    status === "waiting" && !links.image
+      ? "\n⚠️ *No picture*, so this one waits for you: it won't post on its own. Press Post now, or Skip."
+      : status === "waiting" && links.card
+        ? "\n🖼️ No picture came with this change, so it shows a summary card drawn from the note."
+        : "";
   const buttons: Block[] =
     status === "waiting"
       ? [
