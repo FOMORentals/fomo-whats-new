@@ -15,6 +15,7 @@ export const APPS: App[] = [
   { key: "kit", repo: "fomo-kit-onboarding", name: "Kit onboarding", emoji: "🎥" },
   { key: "overtime", repo: "fomo-overtime", name: "Overtime", emoji: "🕐" },
   { key: "whatsnew", repo: "fomo-whats-new", name: "What's new", emoji: "📣" },
+  { key: "requests", repo: "fomo-app-requests", name: "App requests", emoji: "🙋" },
 ];
 
 export function appByRepo(repo: string): App | undefined {
