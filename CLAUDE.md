@@ -15,3 +15,8 @@ Before saying done: `npm test`, `npm run lint`, `npm run build`.
 ## Every FOMO repo
 Each app repo should have `.github/pull_request_template.md` from this repo, and its CLAUDE.md should say:
 "Every PR description has a `## Team note` section (see the PR template). It is what the team reads in #whats-new: a headline, what changed, what they do differently, a picture added in the same PR under `whats-new/`, always (a screenshot, or a mock-up or diagram/workflow when there is nothing to screenshot; "to follow" and "None" are not accepted, and the "Team note picture" check fails without one), and a link. Write `None` when the team won't notice the change."
+
+## Design notes
+Jamie's decisions for this app are in `docs/DESIGN.md`, with who made each and when. Claude reads it at every #app-requests request, so it must be current: when a decision is made or changed (in a pull request, in a chat with Jamie, anywhere), write it there the same day (rule 7). Every pull request either updates it or says under `## Design notes` "No decision changed: <why>"; the "Design notes" check fails otherwise.
+
+It should also have `.github/workflows/design-notes.yml` (from FOMORentals/fomo-app-requests `templates/`), a `docs/DESIGN.md`, and the "## Design notes" paragraph above in its CLAUDE.md.
