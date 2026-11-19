@@ -3,9 +3,13 @@
  * a picture (a file in this repo's public/ folder) and, where later work changed the feature, new wording.
  * The tick applies them to the draft, and to the #whats-new post if the note has already gone out.
  */
-export type LaterFix = { image?: string; changed?: string; todo?: string };
+export type LaterFix = { image?: string; changed?: string; todo?: string; ideaBy?: string };
 
 export const PICTURES: Record<string, LaterFix> = {
+  // Posted before What's new could read the #app-requests issue (19 Nov 2026): Jamie asked for the credit to be added.
+  "fomo-bookings-board-v2#147": { ideaBy: "Will" },
+  "fomo-bookings-board-v2#150": { ideaBy: "Will" },
+  "fomo-bookings-board-v2#152": { ideaBy: "Will" },
   "fomo-bookings-board-v2#91": { image: "/whats-new/notes/bookings-91-kit-status.png" },
   "fomo-bookings-board-v2#92": { image: "/whats-new/notes/bookings-92-company-column.png" },
   "fomo-bookings-board-v2#99": { image: "/whats-new/notes/bookings-99-overdue-chase.png" },
