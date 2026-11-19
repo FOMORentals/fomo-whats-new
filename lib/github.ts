@@ -29,6 +29,12 @@ export async function mergedPrs(repo: string, sinceMs: number): Promise<MergedPr
     .sort((a, b) => Date.parse(a.merged_at) - Date.parse(b.merged_at));
 }
 
+/** An issue's description. */
+export async function issueBody(repo: string, number: number): Promise<string | null> {
+  const i = (await (await gh(`/repos/${OWNER}/${repo}/issues/${number}`)).json()) as { body: string | null };
+  return i.body;
+}
+
 /** Raw bytes of a file at a commit. */
 export async function fileAt(repo: string, ref: string, path: string): Promise<{ body: ArrayBuffer; type: string }> {
   const res = await gh(`/repos/${OWNER}/${repo}/contents/${path.split("/").map(encodeURIComponent).join("/")}?ref=${encodeURIComponent(ref)}`, "application/vnd.github.raw");

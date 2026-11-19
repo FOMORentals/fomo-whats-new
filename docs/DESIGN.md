@@ -27,3 +27,6 @@ Jamie asked for the changes from 30 Oct to 9 Nov to be announced too. 17 notes, 
 
 ## Pictures are found from the files (Jamie, 10 Nov 2026)
 Twice a note lost its picture because of how the Screenshot line was written (a Markdown image on 9 Nov, "(mock-up)" after the path on 10 Nov). Now a note uses the picture it names, else any picture the pull request added under `whats-new/` (one GitHub read per merged change). A draft with no picture never posts on its own: it says so and waits for Jamie's Post now or Skip. "None" in Try it is left off.
+
+## Credit for the idea (Jamie, 19 Nov 2026)
+A change someone asked for in #app-requests carries "💡 <first name>'s idea 🎉" under the note in #whats-new. The name comes from the App requests issue the change closes. No "approved by" line (Jamie's choice). If the name can't be read, the note still posts without it.

@@ -12,6 +12,7 @@ export type Note = {
   screenshot?: string; // path in the repo, under whats-new/
   tryIt?: string; // link
   image?: string; // picture served by this app, e.g. "/whats-new/backfill/01.png" (catch-up notes only)
+  ideaBy?: string; // first name of whoever asked for it in #app-requests, credited on the post
   pr: string; // "repo#123"
   prUrl: string;
   mergedAt: string; // ISO
@@ -71,4 +72,17 @@ export function cleanScreenshotPath(p: string): string | undefined {
   }
   if (!/^whats-new\/[\w./-]+\.(png|jpe?g|gif|webp)$/i.test(s) || s.includes("..")) return undefined;
   return s;
+}
+
+/** The #app-requests issue a pull request closes, when the build robot made it ("Closes #12. Asked for in Slack #app-requests"). */
+export function appRequestIssue(prBody: string | null | undefined): number | null {
+  const m = (prBody ?? "").match(/Closes #(\d+)\. Asked for in Slack #app-requests/);
+  return m ? Number(m[1]) : null;
+}
+
+/** First name of the requester, from the issue the App requests bot opened ("Requested by **Will Royal** in Slack"). */
+export function requesterFirstName(issueBody: string | null | undefined): string | null {
+  const m = (issueBody ?? "").match(/Requested by \*\*([^*]+)\*\* in Slack/);
+  const first = m?.[1].trim().split(/\s+/)[0];
+  return first || null;
 }
