@@ -7,6 +7,7 @@ export type LaterFix = { image?: string; changed?: string; todo?: string; ideaBy
 
 export const PICTURES: Record<string, LaterFix> = {
   // Posted before What's new could read the #app-requests issue (19 Nov 2026): Jamie asked for the credit to be added.
+  "fomo-bookings-board-v2#143": { ideaBy: "Will" },
   "fomo-bookings-board-v2#147": { ideaBy: "Will" },
   "fomo-bookings-board-v2#150": { ideaBy: "Will" },
   "fomo-bookings-board-v2#152": { ideaBy: "Will" },
