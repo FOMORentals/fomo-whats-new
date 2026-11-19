@@ -38,6 +38,8 @@ export function noteBlocks(note: Note, links: Links): Block[] {
     { type: "context", elements: [{ type: "mrkdwn", text: appLabel(note.app) }] },
     { type: "section", text: { type: "mrkdwn", text: lines.join("\n") } },
   ];
+  // Credit whoever asked for it in #app-requests (Jamie, 19 Nov 2026).
+  if (note.ideaBy) blocks.push({ type: "context", elements: [{ type: "mrkdwn", text: `💡 ${esc(note.ideaBy)}'s idea 🎉` }] });
   if (links.image) blocks.push({ type: "image", image_url: links.image, alt_text: note.headline });
   const foot = [tryItText(note.tryIt), `<${links.history(note.app)}|All ${esc(app?.name ?? note.app)} updates>`].filter(Boolean);
   blocks.push({ type: "context", elements: [{ type: "mrkdwn", text: foot.join("  ·  ") }] });

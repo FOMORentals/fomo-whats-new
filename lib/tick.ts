@@ -10,9 +10,9 @@ import { APPS } from "./apps";
 import { BACKFILL, BACKFILL_HOLD, BACKFILL_UNTIL } from "./backfill";
 import { dm, editDraft, historyUrl, publishDraft, sendDraft, updateDraft, updateProposal } from "./actions";
 import { proposalSummary, weeklyBlocks } from "./blocks";
-import { mergedPrs, prPictures } from "./github";
+import { issueBody, mergedPrs, prPictures } from "./github";
 import { type LaterFix, PICTURES } from "./pictures";
-import { parseTeamNote } from "./note";
+import { appRequestIssue, parseTeamNote, requesterFirstName } from "./note";
 import { readDraft, readNote, readProposal, WEEKLY } from "./records";
 import { report } from "./report";
 import { approver, channel, history, messageLink, slack } from "./slack";
@@ -77,7 +77,16 @@ export async function runTick(now = Date.now(), backfill = BACKFILL, hold = BACK
         if (!text) continue; // behind-the-scenes change; nothing to tell the team
         // The picture is the one the note names, else any picture the change added under whats-new/.
         text.screenshot ??= (await prPictures(app.repo, pr.number))[0];
-        await sendDraft({ ...text, app: app.key, pr: key, prUrl: pr.html_url, mergedAt: pr.merged_at }, pr.merge_commit_sha, now);
+        const issue = appRequestIssue(pr.body);
+        let ideaBy: string | undefined;
+        if (issue) {
+          try {
+            ideaBy = requesterFirstName(await issueBody(app.repo, issue)) ?? undefined;
+          } catch (err) {
+            fail(err, "tick.idea_by", { key }); // the note still goes out, just without the credit
+          }
+        }
+        await sendDraft({ ...text, ...(ideaBy ? { ideaBy } : {}), app: app.key, pr: key, prUrl: pr.html_url, mergedAt: pr.merged_at }, pr.merge_commit_sha, now);
         seen.add(key);
         r.drafted++;
       }

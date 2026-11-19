@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseTeamNote } from "./note";
+import { appRequestIssue, parseTeamNote, requesterFirstName } from "./note";
 
 const template = `## Summary
 Adds a give-away button.
@@ -60,4 +60,11 @@ test("picture path with words after it, and None in optional fields (bookings #8
   )!;
   assert.equal(n.screenshot, "whats-new/2026-11-10-verified-freelancer-account-pill.png");
   assert.equal(n.tryIt, undefined);
+});
+
+test("finds the #app-requests issue a robot pull request closes, and the requester's first name", () => {
+  assert.equal(appRequestIssue("## Summary\nx\n\nCloses #133. Asked for in Slack #app-requests; built by Claude."), 133);
+  assert.equal(appRequestIssue("## Summary\nCloses #4"), null);
+  assert.equal(requesterFirstName("Requested by **Will Royal** in Slack #app-requests: https://x"), "Will");
+  assert.equal(requesterFirstName("no requester here"), null);
 });

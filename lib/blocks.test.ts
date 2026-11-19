@@ -94,3 +94,9 @@ test("Try it link with words after it links only the address", () => {
   const json = JSON.stringify(noteBlocks({ ...note, tryIt: "https://www.fomorentals.co.uk/rate-card (Download PDF), once published" }, links));
   assert.match(json, /<https:\/\/www\.fomorentals\.co\.uk\/rate-card\|Try it> \(Download PDF\), once published/);
 });
+
+test("a change someone asked for credits them under the note", () => {
+  const withIdea = JSON.stringify(noteBlocks({ ...note, ideaBy: "Will" }, links));
+  assert.match(withIdea, /💡 Will's idea 🎉/);
+  assert.doesNotMatch(JSON.stringify(noteBlocks(note, links)), /idea 🎉/);
+});
