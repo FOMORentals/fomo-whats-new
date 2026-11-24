@@ -2,6 +2,16 @@
 
 Agreed with Jamie, 6–9 Nov 2026 (thread "Keep the team informed of app changes").
 
+## App card
+Approved by Jamie, 24 Nov 2026. #app-requests uses this card to tell which app a request belongs to; a request
+for something under "Must never" goes against Jamie's decision, so it goes to Jamie as a proposal. Change it
+only with Jamie's OK, in the same pull request as the change.
+
+- **What it's for:** Tells the team about app changes in #whats-new; the history page; idea votes.
+- **Who uses it:** The whole team; Jamie approves each note.
+- **Must never:** Post a note Jamie hasn't seen; @channel anyone.
+- **Belongs elsewhere:** Asking for changes (#app-requests).
+
 ## The problem
 Jamie changes the team's apps (bookings board, portal, inventory/status dashboards, website, overtime…) often, and the team, who use them every day, weren't told.
 
